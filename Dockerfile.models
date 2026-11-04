@@ -1,0 +1,20 @@
+# LOCAL ONLY: exports upstream sources to private /models volume. Never publish this image/cache.
+FROM scad-mcp-runtime AS model-builder
+USER root
+ARG MODEL_COMMIT=94d5a3e2d39e0b90894c042a255fc487cfcc9197
+RUN git clone https://github.com/ostat/gridfinity_extended_openscad /models/gridfinity_extended \
+ && git -C /models/gridfinity_extended checkout --quiet "$MODEL_COMMIT"
+ARG CABLE_RACEWAY_COMMIT=fcbcee8d03d14bffe2067205c111a84aa0d4ad60
+RUN git clone https://github.com/KayosMaker/ParametricCableRacewayAndLid /models/cable_raceway \
+ && git -C /models/cable_raceway checkout --quiet "$CABLE_RACEWAY_COMMIT"
+ARG GRIDFLOCK_COMMIT=033e8f9dab860ce7ef46ca3f1dd656a1d13c5310
+RUN git clone --recurse-submodules https://github.com/yawkat/GridFlock.git /models/gridfinity_baseplate \
+ && git -C /models/gridfinity_baseplate checkout --quiet "$GRIDFLOCK_COMMIT" \
+ && git -C /models/gridfinity_baseplate submodule update --init --recursive --quiet \
+ && python3 -m venv /tmp/svgenv \
+ && /tmp/svgenv/bin/pip install --no-cache-dir svgelements==1.9.6 \
+ && mkdir -p /models/gridfinity_baseplate/paths \
+ && cd /models/gridfinity_baseplate \
+ && /tmp/svgenv/bin/python extract_paths.py puzzle.svg paths/puzzle.scad \
+ && rm -rf /tmp/svgenv
+USER 568

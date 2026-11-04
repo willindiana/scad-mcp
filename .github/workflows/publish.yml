@@ -1,0 +1,72 @@
+name: Approved source-only v0.1.0 release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: public-release
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/tags/v0.1.0'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      source_sha: ${{ steps.hash.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.13'
+      - name: Test source and exact archive; no image build or push
+        run: |
+          set -eu
+          python3 -m venv /tmp/testenv
+          /tmp/testenv/bin/pip install --require-hashes -r requirements-http.txt
+          /tmp/testenv/bin/pip install pytest==9.1.1
+          PYTHONPATH=src /tmp/testenv/bin/python -m pytest -q -m 'not integration'
+          mkdir release /tmp/release-source
+          git archive --format=tar.gz -o release/scad-mcp-v0.1.0-source.tar.gz HEAD
+          tar -xzf release/scad-mcp-v0.1.0-source.tar.gz -C /tmp/release-source
+          curl -fsSL https://github.com/betterleaks/betterleaks/releases/download/v1.9.0/betterleaks_1.9.0_linux_x64.tar.gz -o /tmp/betterleaks.tar.gz
+          echo 'f8b185a39ffcece2a1ca82bf3a4e7435cd81963ffd16b7a9128daf75f35f6de7  /tmp/betterleaks.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/betterleaks.tar.gz -C /tmp betterleaks
+          /tmp/betterleaks git --log-opts='--all --full-history' --no-banner --redact --ignore-gitleaks-allow -c .betterleaks.toml .
+          git log --all --format=fuller | /tmp/betterleaks stdin --no-banner --redact -c .betterleaks.toml
+          /tmp/betterleaks dir --no-banner --redact --ignore-gitleaks-allow -c .betterleaks.toml /tmp/release-source
+          trivy='aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c'
+          docker run --rm -v /tmp/release-source:/source:ro "$trivy" fs --scanners secret --exit-code 1 --format json --output /tmp/secret-report.json /source
+          docker run --rm -v /tmp/release-source:/source:ro "$trivy" fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output /tmp/vuln-report.json /source
+      - id: hash
+        run: |
+          (cd release && sha256sum scad-mcp-v0.1.0-source.tar.gz) > release/SHA256SUMS
+          echo "source_sha=$(cut -d ' ' -f1 release/SHA256SUMS)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: verified-source
+          path: release/
+          retention-days: 3
+          if-no-files-found: error
+  publish:
+    needs: verify
+    environment: public-release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: verified-source
+          path: release
+      - name: Publish source only; no packages permission, image or GHCR operation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_SHA: ${{ needs.verify.outputs.source_sha }}
+        run: |
+          set -eu
+          printf '%s  release/scad-mcp-v0.1.0-source.tar.gz\n' "$SOURCE_SHA" | sha256sum -c -
+          tar -xOf release/scad-mcp-v0.1.0-source.tar.gz CHANGELOG.md > /tmp/changelog
+          gh release create v0.1.0 release/scad-mcp-v0.1.0-source.tar.gz release/SHA256SUMS --repo "$GITHUB_REPOSITORY" --verify-tag --title 'v0.1.0 — source only' --notes-file /tmp/changelog

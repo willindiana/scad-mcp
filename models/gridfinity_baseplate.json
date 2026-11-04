@@ -1,0 +1,114 @@
+{
+  "id": "gridfinity_baseplate",
+  "name": "Gridfinity interlocking baseplate",
+  "description": "GridFlock baseplate with jigsaw connectors, split into pieces that fit the printer bed. The default preset is thin/hollow.",
+  "upstream": {
+    "repo": "https://github.com/yawkat/GridFlock",
+    "commit": "033e8f9dab860ce7ef46ca3f1dd656a1d13c5310"
+  },
+  "license": "MIT",
+  "entry": "gridflock.scad",
+  "params": {
+    "drawer_size": {
+      "type": "vec2",
+      "description": "Finished baseplate outer size in mm [width, depth]. Leave 1-2 mm clearance inside the drawer.",
+      "default": [210, 210],
+      "min": 42,
+      "max": 1000,
+      "scad_name": "plate_size",
+      "scad_format": "[{}, {}]"
+    },
+    "bed_size": {
+      "type": "vec2",
+      "description": "Usable printer bed size in mm [width, depth]; controls how the plate is split.",
+      "default": [250, 250],
+      "min": 100,
+      "max": 1000,
+      "scad_name": "bed_size",
+      "scad_format": "[{}, {}]"
+    },
+    "alignment": {
+      "type": "vec2",
+      "description": "Grid alignment within leftover padding [x, y]. 0.5 centers the grid; 0 shifts it west/south so padding collects on the east/north edge; 1 shifts it east/north so padding collects on the west/south edge.",
+      "default": [0.5, 0.5],
+      "min": 0,
+      "max": 1,
+      "scad_name": "alignment",
+      "scad_format": "[{}, {}]"
+    },
+    "hollow": {
+      "type": "bool",
+      "description": "Skeletonize the underside to roughly halve filament. Incompatible with magnets and the click latch.",
+      "default": false,
+      "scad_name": "hollow"
+    },
+    "hollow_wall": {
+      "type": "number",
+      "description": "Hollow wall thickness in mm; 0.8 mm is two to three 0.4 mm nozzle walls.",
+      "default": 0.8,
+      "min": 0.4,
+      "max": 3,
+      "scad_name": "hollow_wall"
+    },
+    "enable_magnets": {
+      "type": "bool",
+      "description": "Cut friction-fit magnet pockets. Not compatible with hollow; use the standard preset.",
+      "default": false,
+      "scad_name": "magnets"
+    },
+    "click_latch": {
+      "type": "bool",
+      "description": "Enable the experimental click latch. Not compatible with hollow.",
+      "default": false,
+      "scad_name": "click"
+    },
+    "intersection_puzzle": {
+      "type": "bool",
+      "description": "Enable jigsaw connectors at cell intersections.",
+      "default": true,
+      "scad_name": "connector_intersection_puzzle"
+    },
+    "intersection_puzzle_fit": {
+      "type": "number",
+      "description": "Connector fit from 0 (loose) to 1 (tight).",
+      "default": 1,
+      "min": 0,
+      "max": 1,
+      "scad_name": "intersection_puzzle_fit"
+    },
+    "numbering": {
+      "type": "bool",
+      "description": "Emboss segment numbers on the underside to simplify assembly.",
+      "default": true,
+      "scad_name": "numbering"
+    },
+    "remove_bottom_lip": {
+      "type": "bool",
+      "description": "Replace the bottom lip with a straight wall; hollow mode always enables this.",
+      "default": false,
+      "scad_name": "remove_bottom_lip"
+    }
+  },
+  "presets": {
+    "thin": {
+      "hollow": true,
+      "hollow_wall": 0.8,
+      "enable_magnets": false,
+      "click_latch": false,
+      "intersection_puzzle": true,
+      "intersection_puzzle_fit": 1,
+      "numbering": true,
+      "remove_bottom_lip": true
+    },
+    "standard": {
+      "hollow": false,
+      "enable_magnets": false,
+      "click_latch": false,
+      "intersection_puzzle": true,
+      "intersection_puzzle_fit": 1,
+      "numbering": true,
+      "remove_bottom_lip": false
+    }
+  },
+  "default_preset": "thin"
+}

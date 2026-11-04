@@ -1,0 +1,11 @@
+.git
+.venv
+.pytest_cache
+__pycache__
+.verify.*
+artifacts
+tests
+proof
+.env
+local-models
+*.key

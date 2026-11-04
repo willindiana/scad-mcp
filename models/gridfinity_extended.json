@@ -1,0 +1,74 @@
+{
+  "id": "gridfinity_extended",
+  "name": "Gridfinity Extended basic cup",
+  "description": "Parametric gridfinity storage bin. The `standard` preset is a 1x1x7 bin with a normal lip and label, no magnets, screws or finger slide.",
+  "upstream": {
+    "repo": "https://github.com/ostat/gridfinity_extended_openscad",
+    "commit": "94d5a3e2d39e0b90894c042a255fc487cfcc9197"
+  },
+  "license": "GPL-3.0",
+  "entry": "gridfinity_basic_cup.scad",
+  "default_preset": "standard",
+  "presets": {
+    "standard": {
+      "width": 1,
+      "depth": 1,
+      "height": 7,
+      "lip_style": "normal",
+      "wall_thickness": 0,
+      "enable_magnets": false,
+      "enable_screws": false,
+      "fingerslide": "none",
+      "label_style": "normal"
+    }
+  },
+  "params": {
+    "width": {
+      "type": "int", "min": 1, "max": 10, "default": 1,
+      "description": "Bin width in grid units (42 mm).",
+      "scad_name": "width", "scad_format": "[{}, 0]"
+    },
+    "depth": {
+      "type": "int", "min": 1, "max": 10, "default": 1,
+      "description": "Bin depth in grid units (42 mm).",
+      "scad_name": "depth", "scad_format": "[{}, 0]"
+    },
+    "height": {
+      "type": "int", "min": 1, "max": 20, "default": 3,
+      "description": "Bin height in 7 mm units.",
+      "scad_name": "height", "scad_format": "[{}, 0]"
+    },
+    "lip_style": {
+      "type": "enum", "values": ["normal", "reduced", "reduced_double", "minimum", "none"], "default": "normal",
+      "description": "Stacking lip style; none makes the bin non-stackable.",
+      "scad_name": "lip_style"
+    },
+    "wall_thickness": {
+      "type": "number", "min": 0, "max": 5, "default": 0,
+      "description": "Outer wall thickness in mm; 0 selects the upstream automatic thickness.",
+      "scad_name": "wall_thickness"
+    },
+    "enable_magnets": {
+      "type": "bool", "default": false,
+      "description": "Cut magnet pockets in the base.",
+      "scad_name": "enable_magnets"
+    },
+    "enable_screws": {
+      "type": "bool", "default": false,
+      "description": "Cut screw holes in the base.",
+      "scad_name": "enable_screws"
+    },
+    "fingerslide": {
+      "type": "enum", "values": ["none", "rounded", "chamfered"], "default": "none",
+      "description": "Finger slide style on the front wall.",
+      "scad_name": "fingerslide"
+    },
+    "label_style": {
+      "type": "enum",
+      "values": ["disabled", "normal", "gflabel", "pred", "cullenect", "cullenect_legacy"],
+      "default": "disabled",
+      "description": "Label shelf style on the back wall; normal is a plain recessed label shelf.",
+      "scad_name": "label_style"
+    }
+  }
+}

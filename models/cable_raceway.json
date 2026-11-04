@@ -1,0 +1,30 @@
+{
+  "id": "cable_raceway",
+  "name": "Parametric cable raceway",
+  "description": "Slotted cable duct (raceway only).",
+  "upstream": {
+    "repo": "https://github.com/KayosMaker/ParametricCableRacewayAndLid",
+    "commit": "fcbcee8d03d14bffe2067205c111a84aa0d4ad60"
+  },
+  "license": "GPL-3.0",
+  "entry": "parametric cable raceway and lid.scad",
+  "params": {
+    "length": {
+      "type": "int", "min": 50, "max": 300, "default": 150,
+      "description": "Raceway length in mm.", "scad_name": "rw_length"
+    },
+    "width": {
+      "type": "int", "min": 20, "max": 80, "default": 30,
+      "description": "Outside width in mm.", "scad_name": "rw_width"
+    },
+    "height": {
+      "type": "int", "min": 15, "max": 60, "default": 20,
+      "description": "Outside height in mm.", "scad_name": "rw_height"
+    },
+    "part": {
+      "type": "enum", "values": ["raceway"], "default": "raceway",
+      "description": "Render raceway only; upstream lid does not pass manifold validation.",
+      "scad_name": "part"
+    }
+  }
+}

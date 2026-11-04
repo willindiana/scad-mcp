@@ -1,0 +1,6 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "proof": { "width": "[4, 0]", "depth": "[3, 0]", "height": "[4, 0]" }
+  }
+}
